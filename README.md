@@ -1,4 +1,6 @@
 在nginx源码上添加注释。
 
-当前同步nginx版本为[1.15.5](http://nginx.org/download/nginx-1.15.5.tar.gz)。
+nginx源码中的注释内容统一实用/* xxx */风格，为了以示区分我加入的注释都会采用//风格。
+我加入的注释内容主要以中文为主，部分需要借助更复杂的图文说明的片段，我在注释中将加入文章链接。
 
+当前同步nginx版本为[1.15.5](http://nginx.org/download/nginx-1.15.5.tar.gz)。
