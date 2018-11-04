@@ -18,7 +18,7 @@ ngx_hash_find(ngx_hash_t *hash, ngx_uint_t key, u_char *name, size_t len)
 #if 0
     ngx_log_error(NGX_LOG_ALERT, ngx_cycle->log, 0, "hf:\"%*s\"", len, name);
 #endif
-
+    //key % hash->size 选择桶
     elt = hash->buckets[key % hash->size];
 
     if (elt == NULL) {
@@ -29,7 +29,7 @@ ngx_hash_find(ngx_hash_t *hash, ngx_uint_t key, u_char *name, size_t len)
         if (len != (size_t) elt->len) {
             goto next;
         }
-
+        //比对key
         for (i = 0; i < len; i++) {
             if (name[i] != elt->name[i]) {
                 goto next;
@@ -39,7 +39,7 @@ ngx_hash_find(ngx_hash_t *hash, ngx_uint_t key, u_char *name, size_t len)
         return elt->value;
 
     next:
-
+        //计算下一个ele地址，每个ele长度不固定。
         elt = (ngx_hash_elt_t *) ngx_align_ptr(&elt->name[0] + elt->len,
                                                sizeof(void *));
         continue;
@@ -188,7 +188,7 @@ ngx_hash_find_wc_tail(ngx_hash_wildcard_t *hwc, u_char *name, size_t len)
         if ((uintptr_t) value & 2) {
 
             i++;
-
+            //递归查找
             hwc = (ngx_hash_wildcard_t *) ((uintptr_t) value & (uintptr_t) ~3);
 
             value = ngx_hash_find_wc_tail(hwc, &name[i], len - i);
@@ -213,6 +213,7 @@ ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name,
 {
     void  *value;
 
+    //在精确表查找
     if (hash->hash.buckets) {
         value = ngx_hash_find(&hash->hash, key, name, len);
 
@@ -225,6 +226,7 @@ ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name,
         return NULL;
     }
 
+    //在头部统配表查找
     if (hash->wc_head && hash->wc_head->hash.buckets) {
         value = ngx_hash_find_wc_head(hash->wc_head, name, len);
 
@@ -233,6 +235,7 @@ ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name,
         }
     }
 
+    //在尾部统配表查找
     if (hash->wc_tail && hash->wc_tail->hash.buckets) {
         value = ngx_hash_find_wc_tail(hash->wc_tail, name, len);
 
@@ -244,7 +247,7 @@ ngx_hash_find_combined(ngx_hash_combined_t *hash, ngx_uint_t key, u_char *name,
     return NULL;
 }
 
-
+//计算元素大小，元素结构参考ngx_hash_elt_t
 #define NGX_HASH_ELT_SIZE(name)                                               \
     (sizeof(void *) + ngx_align((name)->key.len + 2, sizeof(void *)))
 
@@ -257,6 +260,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
     ngx_uint_t       i, n, key, size, start, bucket_size;
     ngx_hash_elt_t  *elt, **buckets;
 
+    //入参判断
     if (hinit->max_size == 0) {
         ngx_log_error(NGX_LOG_EMERG, hinit->pool->log, 0,
                       "could not build %s, you should "
@@ -265,6 +269,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         return NGX_ERROR;
     }
 
+    //元素的大小都小于桶大小，保证1个桶能存放至少任意1个元素。
     for (n = 0; n < nelts; n++) {
         if (hinit->bucket_size < NGX_HASH_ELT_SIZE(&names[n]) + sizeof(void *))
         {
@@ -276,11 +281,13 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         }
     }
 
+    //test用于计算每个桶所需要的大小，即hash(key)碰撞的几个元素大小之和
     test = ngx_alloc(hinit->max_size * sizeof(u_short), hinit->pool->log);
     if (test == NULL) {
         return NGX_ERROR;
     }
 
+    //计算一个初始的桶数量.TODO 算法含义没理解
     bucket_size = hinit->bucket_size - sizeof(void *);
 
     start = nelts / (bucket_size / (2 * sizeof(void *)));
@@ -290,6 +297,7 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
         start = hinit->max_size - 1000;
     }
 
+    //逐步调整，找到一个能放下所有元素的桶数量。
     for (size = start; size <= hinit->max_size; size++) {
 
         ngx_memzero(test, size * sizeof(u_short));
@@ -307,7 +315,8 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
                           "%ui: %ui %ui \"%V\"",
                           size, key, test[key], &names[n].key);
 #endif
-
+            //test[key] > bucket_size 表示hash(key)相同的元素总大小 > 桶大小
+            //则调整桶数量(size++)，减少碰撞，减少hash(key)相同的元素总大小
             if (test[key] > (u_short) bucket_size) {
                 goto next;
             }
@@ -331,6 +340,8 @@ ngx_hash_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names, ngx_uint_t nelts)
 
 found:
 
+    //重新赋值test[]，如果是goto found，和之前的test[]是一样的。
+    //test[i]表示第i个桶的大小
     for (i = 0; i < size; i++) {
         test[i] = sizeof(void *);
     }
@@ -344,6 +355,7 @@ found:
         test[key] = (u_short) (test[key] + NGX_HASH_ELT_SIZE(&names[n]));
     }
 
+    //计算表的大小，且保证每个桶起始地址可以是cacheline对齐
     len = 0;
 
     for (i = 0; i < size; i++) {
@@ -356,6 +368,7 @@ found:
         len += test[i];
     }
 
+    //申请hinit->hash和hinit->hash->buckets基本结构空间
     if (hinit->hash == NULL) {
         hinit->hash = ngx_pcalloc(hinit->pool, sizeof(ngx_hash_wildcard_t)
                                              + size * sizeof(ngx_hash_elt_t *));
@@ -375,6 +388,7 @@ found:
         }
     }
 
+    //分配元素空间，且保证元素起始地址是cacheline对齐的
     elts = ngx_palloc(hinit->pool, len + ngx_cacheline_size);
     if (elts == NULL) {
         ngx_free(test);
@@ -383,6 +397,7 @@ found:
 
     elts = ngx_align_ptr(elts, ngx_cacheline_size);
 
+    //buckets[]与元素空间关联
     for (i = 0; i < size; i++) {
         if (test[i] == sizeof(void *)) {
             continue;
@@ -396,6 +411,7 @@ found:
         test[i] = 0;
     }
 
+    //将names[]的KV列表复制到hash表结构中
     for (n = 0; n < nelts; n++) {
         if (names[n].key.data == NULL) {
             continue;
@@ -412,6 +428,7 @@ found:
         test[key] = (u_short) (test[key] + NGX_HASH_ELT_SIZE(&names[n]));
     }
 
+    //配置每个桶内最后一个ele->value = NULL;
     for (i = 0; i < size; i++) {
         if (buckets[i] == NULL) {
             continue;
@@ -492,7 +509,7 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
         ngx_log_error(NGX_LOG_ALERT, hinit->pool->log, 0,
                       "wc0: \"%V\"", &names[n].key);
 #endif
-
+        //按.进行拆分
         dot = 0;
 
         for (len = 0; len < names[n].key.len; len++) {
@@ -502,6 +519,7 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
             }
         }
 
+        //第一段保存在curr_names中
         name = ngx_array_push(&curr_names);
         if (name == NULL) {
             return NGX_ERROR;
@@ -523,6 +541,7 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
             len++;
         }
 
+        //非第一段保存在next_names中
         next_names.nelts = 0;
 
         if (names[n].key.len != len) {
@@ -547,6 +566,7 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
                 break;
             }
 
+            //将第一段相同的 后面部分添加到next_name
             if (!dot
                 && names[i].key.len > len
                 && names[i].key.data[len] != '.')
@@ -575,6 +595,7 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
             h = *hinit;
             h.hash = NULL;
 
+            //递归构造表
             if (ngx_hash_wildcard_init(&h, (ngx_hash_key_t *) next_names.elts,
                                        next_names.nelts)
                 != NGX_OK)
@@ -588,6 +609,8 @@ ngx_hash_wildcard_init(ngx_hash_init_t *hinit, ngx_hash_key_t *names,
                 wdc->value = names[n].value;
             }
 
+            //bit[0]表示最后是否有.
+            //bit[1]是否指向中间hash结构,即是否为根节点
             name->value = (void *) ((uintptr_t) wdc | (dot ? 3 : 2));
 
         } else if (dot) {
@@ -774,6 +797,7 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
 
     /* exact hash */
 
+    //计算hash(key)
     k = 0;
 
     for (i = 0; i < last; i++) {
@@ -786,7 +810,7 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
     k %= ha->hsize;
 
     /* check conflicts in exact hash */
-
+    //在简易hash表的桶中查找是否有相同key
     name = ha->keys_hash[k].elts;
 
     if (name) {
@@ -796,6 +820,7 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
             }
 
             if (ngx_strncmp(key->data, name[i].data, last) == 0) {
+                //通过简易hash表判断，找到相同key
                 return NGX_BUSY;
             }
         }
@@ -809,6 +834,7 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
         }
     }
 
+    //将key放入简易hash表中
     name = ngx_array_push(&ha->keys_hash[k]);
     if (name == NULL) {
         return NGX_ERROR;
@@ -816,6 +842,7 @@ ngx_hash_add_key(ngx_hash_keys_arrays_t *ha, ngx_str_t *key, void *value,
 
     *name = *key;
 
+    //将不重复的key放入结果ha->keys列表中
     hk = ngx_array_push(&ha->keys);
     if (hk == NULL) {
         return NGX_ERROR;
