@@ -16,13 +16,13 @@
 typedef struct {
     void             *value;
     u_short           len;
-    u_char            name[1];
+    u_char            name[1]; //此处只是一个占位符，具体key长度不定，由有len决定
 } ngx_hash_elt_t;
 
 
 typedef struct {
-    ngx_hash_elt_t  **buckets;
-    ngx_uint_t        size;
+    ngx_hash_elt_t  **buckets; //hash表分多个桶，每个桶内存放hash(key)相同的元素
+    ngx_uint_t        size; //桶的数量
 } ngx_hash_t;
 
 
@@ -50,15 +50,15 @@ typedef struct {
 
 
 typedef struct {
-    ngx_hash_t       *hash;
-    ngx_hash_key_pt   key;
+    ngx_hash_t       *hash; //出参，初始化好的hash表，后续通过ngx_hash_find()函数使用
+    ngx_hash_key_pt   key;  //hash计算函数，常用选项有ngx_hash_key和ngx_hash_key_lc
 
-    ngx_uint_t        max_size;
-    ngx_uint_t        bucket_size;
+    ngx_uint_t        max_size; //最大桶数量，实际数量在函数中计算。
+    ngx_uint_t        bucket_size; //每个桶的大小。
 
-    char             *name;
-    ngx_pool_t       *pool;
-    ngx_pool_t       *temp_pool;
+    char             *name; //表名称，TODO 不知道在哪里用到
+    ngx_pool_t       *pool; //数据pool
+    ngx_pool_t       *temp_pool; //临时pool，仅在需要通配符的hash表初始化是使用
 } ngx_hash_init_t;
 
 
@@ -73,13 +73,13 @@ typedef struct {
 
 
 typedef struct {
-    ngx_uint_t        hsize;
+    ngx_uint_t        hsize;//简易hash表的桶数量
 
     ngx_pool_t       *pool;
     ngx_pool_t       *temp_pool;
 
-    ngx_array_t       keys;
-    ngx_array_t      *keys_hash;
+    ngx_array_t       keys;//精确匹配的key列表
+    ngx_array_t      *keys_hash;//使用二维数组构造的简易hash表，用于检查key是否重复。
 
     ngx_array_t       dns_wc_head;
     ngx_array_t      *dns_wc_head_hash;
