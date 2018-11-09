@@ -5,7 +5,7 @@ nginx源码中的注释内容统一实用/* xxx */风格，为了以示区分我
 
 目录docs是我新增加的目录，主要用于存放难以在注释中简易说明的内容。
 
-当前同步nginx版本为[1.15.5](http://nginx.org/download/nginx-1.15.5.tar.gz)。
+当前同步nginx版本为[1.15.6](http://nginx.org/download/nginx-1.15.6.tar.gz)。
 
 毫无疑问nginx是一个十分优秀的开源项目，它拥有许多优秀的设计。
 但在二次开发的工作过程中也发现了nginx项目中也有缺点，造成了理解和开发上的困难。明显的问题如下：
