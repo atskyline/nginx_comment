@@ -2,31 +2,28 @@
 import os
 import json
 
+def dfs(data, head, node, path):
+    for subname in node['depends']:
+        subnode = data[subname]
+        if subname == head:
+            print("->".join(path))
+        elif subname not in path and subnode['visit'] == False:
+            path.append(subname)
+            dfs(data, head, subnode, path)
+            path.pop()
+
 work_dir = os.path.abspath(os.path.join(__file__, '../'))
-data_file = os.path.join(work_dir, 'class_data.json')
+data_file = os.path.join(work_dir, 'data.json')
 
 with open(data_file, 'r') as fp:
     data = json.load(fp)
 
 for _, node in data.items():
-    node['visit'] = 0
+    node['visit'] = False
 
-for name, node in data.items():
-    if node['visit'] == 0:
-        dfs(name, node, [])
+for head, node in data.items():
+    dfs(data, head, node, [head])
+    node['visit'] = True
 
-
-def dfs(name, node, path):
-    node['visit'] = 1
-    path.append(name)
-    for subname, subnode in node['depends']:
-        if name in path and subnode['visit'] != 2:
-            start_idx = path.index(subname)
-            path.append(subname)
-            print("->".join(path[start_idx:]))
-            path.pop()
-        dfs(subname, subnode, path)
-    path.pop()
-    node['visit'] = 2
 
 
