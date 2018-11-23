@@ -1,0 +1,168 @@
+{
+    "_": {
+        "files": [
+            "ngx_regex.o",
+            "ngx_cycle.o",
+            "ngx_list.o",
+            "ngx_crc32.o",
+            "ngx_slab.o",
+            "ngx_murmurhash.o",
+            "ngx_syslog.o",
+            "ngx_buf.o",
+            "ngx_file.o",
+            "ngx_hash.o",
+            "ngx_crypt.o",
+            "ngx_inet.o",
+            "ngx_radix_tree.o",
+            "ngx_string.o",
+            "ngx_md5.o",
+            "ngx_shmtx.o",
+            "ngx_rwlock.o",
+            "ngx_sha1.o",
+            "ngx_queue.o",
+            "ngx_times.o",
+            "ngx_rbtree.o",
+            "ngx_cpuinfo.o",
+            "ngx_parse.o",
+            "ngx_array.o",
+            "ngx_proxy_protocol.o",
+            "ngx_spinlock.o",
+            "ngx_parse_time.o",
+            "ngx_log.o",
+            "ngx_output_chain.o",
+            "ngx_resolver.o",
+            "ngx_setaffinity.o",
+            "ngx_errno.o",
+            "ngx_linux_sendfile_chain.o",
+            "ngx_time.o",
+            "ngx_send.o",
+            "ngx_readv_chain.o",
+            "ngx_recv.o",
+            "ngx_files.o",
+            "ngx_udp_send.o",
+            "ngx_writev_chain.o",
+            "ngx_user.o",
+            "ngx_socket.o",
+            "ngx_dlopen.o",
+            "ngx_shmem.o",
+            "ngx_channel.o",
+            "ngx_udp_recv.o",
+            "ngx_linux_init.o",
+            "ngx_alloc.o",
+            "ngx_daemon.o",
+            "ngx_posix_init.o",
+            "ngx_setproctitle.o",
+            "ngx_open_file_cache.o",
+            "ngx_connection.o",
+            "ngx_palloc.o",
+            "ngx_udp_sendmsg_chain.o",
+            "ngx_modules.o",
+
+            "ngx_event.o",
+            "ngx_event_openssl.o",
+            "ngx_event_accept.o",
+            "ngx_event_openssl_stapling.o",
+            "ngx_event_posted.o",
+            "ngx_epoll_module.o",
+            "ngx_event_connect.o",
+            "ngx_event_udp.o",
+            "ngx_event_timer.o",
+            "ngx_event_pipe.o",
+
+            "ngx_conf_file.o",
+            "nginx.o",
+            "ngx_module.o",
+            "ngx_process.o",
+            "ngx_process_cycle.o"
+        ]
+    },
+    "event": {
+        "files": [
+        ]
+    },
+    "core": {
+        "files": [
+        ]
+    },
+    "http_core": {
+        "files": [
+            "ngx_http.o",
+            "ngx_http_request.o",
+            "ngx_http_variables.o",
+            "ngx_http_request_body.o",
+            "ngx_http_core_module.o",
+            "ngx_http_file_cache.o",
+            "ngx_http_script.o",
+            "ngx_http_parse.o",
+            "ngx_http_postpone_filter_module.o",
+            "ngx_http_special_response.o",
+            "ngx_http_ssl_module.o"
+        ]
+    },
+    "http_proxy": {
+        "files": [
+            "ngx_http_proxy_module.o",
+            "ngx_http_scgi_module.o",
+            "ngx_http_fastcgi_module.o",
+            "ngx_http_uwsgi_module.o",
+            "ngx_http_memcached_module.o"
+        ]
+    },
+
+    "http_upstream": {
+        "files": [
+            "ngx_http_upstream.o",
+            "ngx_http_upstream_round_robin.o",
+            "ngx_http_upstream_least_conn_module.o",
+            "ngx_http_upstream_ip_hash_module.o",
+            "ngx_http_upstream_zone_module.o",
+            "ngx_http_upstream_hash_module.o",
+            "ngx_http_upstream_keepalive_module.o",
+            "ngx_http_upstream_random_module.o"
+
+        ]
+    },
+    "http_module": {
+        "files": [
+            "ngx_http_header_filter_module.o",
+            "ngx_http_copy_filter_module.o",
+            "ngx_http_userid_filter_module.o",
+            "ngx_http_headers_filter_module.o",
+            "ngx_http_map_module.o",
+            "ngx_http_charset_filter_module.o",
+            "ngx_http_index_module.o",
+            "ngx_http_limit_conn_module.o",
+            "ngx_http_static_module.o",
+            "ngx_http_access_module.o",
+            "ngx_http_auth_basic_module.o",
+            "ngx_http_range_filter_module.o",
+            "ngx_http_empty_gif_module.o",
+            "ngx_http_not_modified_filter_module.o",
+            "ngx_http_mirror_module.o",
+            "ngx_http_split_clients_module.o",
+            "ngx_http_try_files_module.o",
+            "ngx_http_chunked_filter_module.o",
+            "ngx_http_geo_module.o",
+            "ngx_http_rewrite_module.o",
+            "ngx_http_ssi_filter_module.o",
+            "ngx_http_log_module.o",
+            "ngx_http_autoindex_module.o",
+            "ngx_http_gzip_filter_module.o",
+            "ngx_http_limit_req_module.o",
+            "ngx_http_browser_module.o",
+            "ngx_http_referer_module.o",
+            "ngx_http_write_filter_module.o"
+        ]
+    },
+    "http_v2": {
+        "files": [
+            "ngx_http_v2_module.o",
+            "ngx_http_v2_filter_module.o",
+            "ngx_http_v2.o",
+            "ngx_http_v2_encode.o",
+            "ngx_http_v2_huff_decode.o",
+            "ngx_http_v2_huff_encode.o",
+            "ngx_http_v2_table.o"
+        ]
+    }
+}

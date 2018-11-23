@@ -1,308 +1,97 @@
 {
-    "http2": {
+    "core": {
         "files": [
-            "ngx_http_v2_encode.o",
-            "ngx_http_v2_huff_decode.o",
-            "ngx_http_v2_huff_encode.o",
-            "ngx_http_v2_module.o",
-            "ngx_http_v2_table.o",
-            "ngx_http_v2_filter_module.o",
-            "ngx_http_v2.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_header_filter_module.o": {
-        "files": [
-            "ngx_http_header_filter_module.o"
+            "ngx_process_cycle.o",
+            "ngx_cycle.o",
+            "ngx_module.o",
+            "nginx.o"
         ],
         "depends": [
-            "ngx_http_write_filter_module.o"
+            "utils",
+            "utils(use core)",
+            "utils(use ngx_cycle->log)"
         ]
     },
-    "ngx_http_copy_filter_module.o": {
+    "utils": {
         "files": [
-            "ngx_http_copy_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_round_robin.o": {
-        "files": [
-            "ngx_http_upstream_round_robin.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_write_filter_module.o": {
-        "files": [
-            "ngx_http_write_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_special_response.o": {
-        "files": [
-            "ngx_http_special_response.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_postpone_filter_module.o": {
-        "files": [
-            "ngx_http_postpone_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_file_cache.o": {
-        "files": [
-            "ngx_http_file_cache.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_least_conn_module.o": {
-        "files": [
-            "ngx_http_upstream_least_conn_module.o"
+            "ngx_setaffinity.o",
+            "ngx_errno.o",
+            "ngx_linux_sendfile_chain.o",
+            "ngx_time.o",
+            "ngx_send.o",
+            "ngx_readv_chain.o",
+            "ngx_recv.o",
+            "ngx_md5.o",
+            "ngx_radix_tree.o",
+            "ngx_palloc.o",
+            "ngx_spinlock.o",
+            "ngx_rwlock.o",
+            "ngx_sha1.o",
+            "ngx_queue.o",
+            "ngx_times.o",
+            "ngx_rbtree.o",
+            "ngx_parse.o",
+            "ngx_array.o",
+            "ngx_proxy_protocol.o",
+            "ngx_buf.o",
+            "ngx_regex.o",
+            "ngx_list.o",
+            "ngx_crypt.o",
+            "ngx_alloc.o",
+            "ngx_channel.o",
+            "ngx_dlopen.o",
+            "ngx_shmem.o",
+            "ngx_udp_sendmsg_chain.o",
+            "ngx_udp_send.o",
+            "ngx_writev_chain.o",
+            "ngx_user.o",
+            "ngx_socket.o",
+            "ngx_udp_recv.o",
+            "ngx_linux_init.o",
+            "ngx_file.o",
+            "ngx_inet.o",
+            "ngx_resolver.o",
+            "ngx_output_chain.o",
+            "ngx_files.o",
+            "ngx_parse_time.o",
+            "ngx_murmurhash.o",
+            "ngx_cpuinfo.o"
         ],
         "depends": [
-            "ngx_http_upstream_round_robin.o"
+            "utils(use core)",
+            "utils(use ngx_cycle->log)"
         ]
     },
-    "ngx_http_userid_filter_module.o": {
+    "utils(use ngx_cycle->log)": {
         "files": [
-            "ngx_http_userid_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_headers_filter_module.o": {
-        "files": [
-            "ngx_http_headers_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_map_module.o": {
-        "files": [
-            "ngx_http_map_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_charset_filter_module.o": {
-        "files": [
-            "ngx_http_charset_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_ip_hash_module.o": {
-        "files": [
-            "ngx_http_upstream_ip_hash_module.o"
+            "ngx_shmtx.o",
+            "ngx_crc32.o",
+            "ngx_hash.o",
+            "ngx_process.o",
+            "ngx_setproctitle.o",
+            "ngx_slab.o",
+            "ngx_syslog.o",
+            "ngx_open_file_cache.o",
+            "ngx_string.o"
         ],
         "depends": [
-            "ngx_http_upstream_round_robin.o"
+            "utils",
+            "utils(use core)",
+            "core"
         ]
     },
-    "ngx_http_index_module.o": {
+    "utils(use core)": {
         "files": [
-            "ngx_http_index_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_uwsgi_module.o": {
-        "files": [
-            "ngx_http_uwsgi_module.o"
+            "ngx_log.o",
+            "ngx_connection.o",
+            "ngx_conf_file.o",
+            "ngx_posix_init.o",
+            "ngx_daemon.o"
         ],
         "depends": [
-            "ngx_http_file_cache.o"
-        ]
-    },
-    "ngx_http_limit_conn_module.o": {
-        "files": [
-            "ngx_http_limit_conn_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_static_module.o": {
-        "files": [
-            "ngx_http_static_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_zone_module.o": {
-        "files": [
-            "ngx_http_upstream_zone_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_access_module.o": {
-        "files": [
-            "ngx_http_access_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_auth_basic_module.o": {
-        "files": [
-            "ngx_http_auth_basic_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_range_filter_module.o": {
-        "files": [
-            "ngx_http_range_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_keepalive_module.o": {
-        "files": [
-            "ngx_http_upstream_keepalive_module.o"
-        ],
-        "depends": [
-            "ngx_http_upstream_round_robin.o"
-        ]
-    },
-    "ngx_http_empty_gif_module.o": {
-        "files": [
-            "ngx_http_empty_gif_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_not_modified_filter_module.o": {
-        "files": [
-            "ngx_http_not_modified_filter_module.o"
-        ],
-        "depends": [
-            "ngx_http_special_response.o"
-        ]
-    },
-    "ngx_http_grpc_module.o": {
-        "files": [
-            "ngx_http_grpc_module.o"
-        ],
-        "depends": [
-            "http2"
-        ]
-    },
-    "ngx_http_mirror_module.o": {
-        "files": [
-            "ngx_http_mirror_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_scgi_module.o": {
-        "files": [
-            "ngx_http_scgi_module.o"
-        ],
-        "depends": [
-            "ngx_http_file_cache.o"
-        ]
-    },
-    "ngx_http_fastcgi_module.o": {
-        "files": [
-            "ngx_http_fastcgi_module.o"
-        ],
-        "depends": [
-            "ngx_http_file_cache.o"
-        ]
-    },
-    "ngx_http_split_clients_module.o": {
-        "files": [
-            "ngx_http_split_clients_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_try_files_module.o": {
-        "files": [
-            "ngx_http_try_files_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_random_module.o": {
-        "files": [
-            "ngx_http_upstream_random_module.o"
-        ],
-        "depends": [
-            "ngx_http_upstream_round_robin.o"
-        ]
-    },
-    "ngx_http_proxy_module.o": {
-        "files": [
-            "ngx_http_proxy_module.o"
-        ],
-        "depends": [
-            "ngx_http_file_cache.o"
-        ]
-    },
-    "ngx_http_chunked_filter_module.o": {
-        "files": [
-            "ngx_http_chunked_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_geo_module.o": {
-        "files": [
-            "ngx_http_geo_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_rewrite_module.o": {
-        "files": [
-            "ngx_http_rewrite_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_ssi_filter_module.o": {
-        "files": [
-            "ngx_http_ssi_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_memcached_module.o": {
-        "files": [
-            "ngx_http_memcached_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_log_module.o": {
-        "files": [
-            "ngx_http_log_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_autoindex_module.o": {
-        "files": [
-            "ngx_http_autoindex_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_gzip_filter_module.o": {
-        "files": [
-            "ngx_http_gzip_filter_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_ssl_module.o": {
-        "files": [
-            "ngx_http_ssl_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_limit_req_module.o": {
-        "files": [
-            "ngx_http_limit_req_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_browser_module.o": {
-        "files": [
-            "ngx_http_browser_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_referer_module.o": {
-        "files": [
-            "ngx_http_referer_module.o"
-        ],
-        "depends": []
-    },
-    "ngx_http_upstream_hash_module.o": {
-        "files": [
-            "ngx_http_upstream_hash_module.o"
-        ],
-        "depends": [
-            "ngx_http_upstream_round_robin.o"
+            "utils",
+            "core",
+            "utils(use ngx_cycle->log)"
         ]
     }
 }

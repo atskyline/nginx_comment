@@ -155,19 +155,19 @@ file_data_path = 'data.json'
 # save_data(file_data, file_data_path)
 file_data = load_data(file_data_path)
 
-# class_define_path ='class_define.json'
-# class_data = load_data(class_define_path)
-# class_data = analysis_class_depend(class_data, file_data)
-# class_data_path = 'class_data.json'
-# save_data(class_data, class_data_path)
+class_define_path ='class_define.json'
+class_data = load_data(class_define_path)
+class_data = analysis_class_depend(class_data, file_data)
+class_data_path = 'class_data.json'
+save_data(class_data, class_data_path)
 
 # class_data = load_data(class_data_path)
 # print_loop(file_data)
 # check_loop(file_data)
 
-# dot_file = 'class_depend.dot'
-# gen_dot_graph(dot_file, class_data)
+dot_file = 'class_depend.dot'
+gen_dot_graph(dot_file, class_data)
 
-# svg_file = 'class_depend.svg'
-# gen_img_file(dot_file, svg_file)
+svg_file = 'class_depend.svg'
+gen_img_file(dot_file, svg_file)
 # dot class_depend.dot -Tpng -o class_depend.png
