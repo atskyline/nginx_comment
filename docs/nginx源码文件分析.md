@@ -1,4 +1,4 @@
-本文目的主要从宏观层面分析nginx源码，对nginx源码文件进行分类，并分析其依赖关系，帮助理解nginx源码宏观结构。对阅读源码起指引作用
+本文目的主要从宏观层面分析nginx源码，对nginx源码文件进行分类，并分析其依赖关系。帮助理解nginx源码宏观结构，对阅读源码起指引作用。
 
 
 
@@ -229,9 +229,9 @@ http目录下的文件搭建了一套http的处理框架，不仅能高效支持
 
 分析nginx代码中复杂度最高的几个函数，其中NLOC表示无注释的代码行数、CCN表示圈复杂度、PARAM表示函数参数个数、length表示总行数。
 
- ```
+```
 ========================================
-  NLOC  CCN  PARAM  length  location  
+  NLOC  CCN  PARAM  length  location
 ----------------------------------------
   588    151     1     829   ngx_init_cycle
   352    133     1     404   ngx_mail_imap_parse_command
@@ -252,7 +252,7 @@ http目录下的文件搭建了一套http的处理框架，不仅能高效支持
   293     62     1     439   ngx_http_fastcgi_process_header
   349     60     3     494   ngx_http_proxy_merge_loc_conf
   228     60     4     343   ngx_open_cached_file
- ```
+```
 
 我们可以看到几点
 
