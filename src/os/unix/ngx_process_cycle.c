@@ -517,7 +517,7 @@ ngx_signal_worker_processes(ngx_cycle_t *cycle, int signo)
             continue;
         }
 
-        if (ch.command) {
+        if (ch.command) {// 为什么这几个信号要同时通过 信号、管道2个途径传递给worker进程？
             if (ngx_write_channel(ngx_processes[i].channel[0],
                                   &ch, sizeof(ngx_channel_t), cycle->log)
                 == NGX_OK)

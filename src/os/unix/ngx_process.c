@@ -314,7 +314,7 @@ ngx_init_signals(ngx_log_t *log)
     return NGX_OK;
 }
 
-
+// 信号处理函数入口
 static void
 ngx_signal_handler(int signo, siginfo_t *siginfo, void *ucontext)
 {
