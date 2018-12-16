@@ -622,7 +622,7 @@ ngx_init_cycle(ngx_cycle_t *old_cycle)
 
     pool->log = cycle->log;
 
-    if (ngx_init_modules(cycle) != NGX_OK) {
+    if (ngx_init_modules(cycle) != NGX_OK) { // 调用模块的init_module回调
         /* fatal */
         exit(1);
     }

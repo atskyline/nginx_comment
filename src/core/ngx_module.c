@@ -21,7 +21,7 @@ static ngx_uint_t ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type,
 ngx_uint_t         ngx_max_module;
 static ngx_uint_t  ngx_modules_n;
 
-
+// 在ngx_init_cycle()之前调用
 ngx_int_t
 ngx_preinit_modules(void)
 {
@@ -38,7 +38,7 @@ ngx_preinit_modules(void)
     return NGX_OK;
 }
 
-
+// 将ngx_modules信息复制到cycle->modules， 在ngx_init_cycle()过程中调用
 ngx_int_t
 ngx_cycle_modules(ngx_cycle_t *cycle)
 {
@@ -61,7 +61,7 @@ ngx_cycle_modules(ngx_cycle_t *cycle)
     return NGX_OK;
 }
 
-
+// 在ngx_init_cycle()配置解析完成后调用各模块注册的回调函数
 ngx_int_t
 ngx_init_modules(ngx_cycle_t *cycle)
 {
@@ -78,7 +78,8 @@ ngx_init_modules(ngx_cycle_t *cycle)
     return NGX_OK;
 }
 
-
+// 根据类型设置模块的ctx_index属性，在http{}、event{}、stream{}块的解析函数中被调用
+// 会被重复调用
 ngx_int_t
 ngx_count_modules(ngx_cycle_t *cycle, ngx_uint_t type)
 {
@@ -98,7 +99,7 @@ ngx_count_modules(ngx_cycle_t *cycle, ngx_uint_t type)
         }
 
         if (module->ctx_index != NGX_MODULE_UNSET_INDEX) {
-
+            // 模块重新加载，会出现已经有值场景
             /* if ctx_index was assigned, preserve it */
 
             if (module->ctx_index > max) {
@@ -314,7 +315,8 @@ again:
     return index;
 }
 
-
+// 查找一个可以使用的下标值作为ctx_index，这个下标必须在当前cycle和old_cycle中都没使用过。
+// 防止配置reload失败，配置回滚时出现错误覆盖。
 static ngx_uint_t
 ngx_module_ctx_index(ngx_cycle_t *cycle, ngx_uint_t type, ngx_uint_t index)
 {
