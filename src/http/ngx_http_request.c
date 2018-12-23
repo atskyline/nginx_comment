@@ -300,7 +300,7 @@ ngx_http_init_connection(ngx_connection_t *c)
     }
 
     /* the default server configuration for the address:port */
-    hc->conf_ctx = hc->addr_conf->default_server->ctx;
+    hc->conf_ctx = hc->addr_conf->default_server->ctx; // 先设置成默认server
 
     ctx = ngx_palloc(c->pool, sizeof(ngx_http_log_ctx_t));
     if (ctx == NULL) {
@@ -2059,7 +2059,7 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
 #endif
 
     hc = r->http_connection;
-
+    // SNI请求校验sni与host是否相等，这个职责剥离到另外独立得函数更好
 #if (NGX_HTTP_SSL && defined SSL_CTRL_SET_TLSEXT_HOSTNAME)
 
     if (hc->ssl_servername) {
@@ -2076,7 +2076,7 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
                 return NGX_ERROR;
             }
 #endif
-            return NGX_OK;
+            return NGX_OK; //SNI请求与HOST内容一致就直接返回
         }
     }
 
@@ -2104,6 +2104,7 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
         sscf = ngx_http_get_module_srv_conf(cscf->ctx, ngx_http_ssl_module);
 
         if (sscf->verify) {
+            // 开启SNI与HOST校验功能，不匹配时结束请求。
             ngx_log_error(NGX_LOG_INFO, r->connection->log, 0,
                           "client attempted to request the server name "
                           "different from the one that was negotiated");
@@ -2117,7 +2118,7 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
     if (rc == NGX_DECLINED) {
         return NGX_OK;
     }
-
+    // 将请求的server上下文修改成cscf
     r->srv_conf = cscf->ctx->srv_conf;
     r->loc_conf = cscf->ctx->loc_conf;
 
@@ -2128,7 +2129,7 @@ ngx_http_set_virtual_server(ngx_http_request_t *r, ngx_str_t *host)
     return NGX_OK;
 }
 
-
+// 在virtual_names找到合适的core_srv_conf
 static ngx_int_t
 ngx_http_find_virtual_server(ngx_connection_t *c,
     ngx_http_virtual_names_t *virtual_names, ngx_str_t *host,
@@ -2139,7 +2140,7 @@ ngx_http_find_virtual_server(ngx_connection_t *c,
     if (virtual_names == NULL) {
         return NGX_DECLINED;
     }
-
+    // 先在hash表内查找server
     cscf = ngx_hash_find_combined(&virtual_names->names,
                                   ngx_hash_key(host->data, host->len),
                                   host->data, host->len);
@@ -2150,7 +2151,7 @@ ngx_http_find_virtual_server(ngx_connection_t *c,
     }
 
 #if (NGX_PCRE)
-
+    // 根据正则匹配查找
     if (host->len && virtual_names->nregex) {
         ngx_int_t                n;
         ngx_uint_t               i;
@@ -2174,6 +2175,10 @@ ngx_http_find_virtual_server(ngx_connection_t *c,
                 if (n >= 0) {
                     hc = c->data;
                     hc->ssl_servername_regex = sn[i].regex;
+                    // 在SNI做正则匹配时，将使用的正则保存在 hc->ssl_servername_regex
+                    // 到使用HOST做校验时可以快速拿到匹配的正则
+                    // 这个设计不好，让这个查找函数承担了一个设置初始值的功能，
+                    // 而且通过hc->ssl_servername_regex保存参数也不是最合理的设计
 
                     *cscfp = sn[i].server;
                     return NGX_OK;
