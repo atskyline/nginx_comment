@@ -206,7 +206,7 @@ typedef struct {
     unsigned                    captures:1;
 #endif
 
-    ngx_http_core_loc_conf_t  **named_locations;
+    ngx_http_core_loc_conf_t  **named_locations; //仅包括内部loc
 } ngx_http_core_srv_conf_t;
 
 
@@ -320,7 +320,7 @@ struct ngx_http_core_loc_conf_s {
 
     ngx_http_location_tree_node_t   *static_locations;
 #if (NGX_PCRE)
-    ngx_http_core_loc_conf_t       **regex_locations;
+    ngx_http_core_loc_conf_t       **regex_locations;//仅包括正则loc
 #endif
 
     /* pointer to the modules' loc_conf */
@@ -433,7 +433,7 @@ struct ngx_http_core_loc_conf_s {
     ngx_uint_t    types_hash_max_size;
     ngx_uint_t    types_hash_bucket_size;
 
-    ngx_queue_t  *locations;
+    ngx_queue_t  *locations; // 存放子location
 
 #if 0
     ngx_http_core_loc_conf_t  *prev_location;
@@ -443,12 +443,12 @@ struct ngx_http_core_loc_conf_s {
 
 typedef struct {
     ngx_queue_t                      queue;
-    ngx_http_core_loc_conf_t        *exact;
-    ngx_http_core_loc_conf_t        *inclusive;
-    ngx_str_t                       *name;
-    u_char                          *file_name;
-    ngx_uint_t                       line;
-    ngx_queue_t                      list;
+    ngx_http_core_loc_conf_t        *exact;// 有= @ 正则的loc
+    ngx_http_core_loc_conf_t        *inclusive;// 普通前缀loc
+    ngx_str_t                       *name; //与clcf->name一致
+    u_char                          *file_name; //错误输出用
+    ngx_uint_t                       line; //错误输出用
+    ngx_queue_t                      list; //这个list是干嘛的？
 } ngx_http_location_queue_t;
 
 

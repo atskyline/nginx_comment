@@ -275,7 +275,7 @@ ngx_http_block(ngx_conf_t *cf, ngx_command_t *cmd, void *conf)
     /* create location trees */
 
     for (s = 0; s < cmcf->servers.nelts; s++) {
-
+        // 初始化location存储结构
         clcf = cscfp[s]->ctx->loc_conf[ngx_http_core_module.ctx_index];
 
         if (ngx_http_init_locations(cf, cscfp[s], clcf) != NGX_OK) {
@@ -686,10 +686,10 @@ ngx_http_init_locations(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf,
 
     ngx_queue_sort(locations, ngx_http_cmp_locations);
 
-    named = NULL;
+    named = NULL;//@内部loc的队列
     n = 0;
 #if (NGX_PCRE)
-    regex = NULL;
+    regex = NULL;//正则loc的队列
     r = 0;
 #endif
 
@@ -700,7 +700,7 @@ ngx_http_init_locations(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf,
         lq = (ngx_http_location_queue_t *) q;
 
         clcf = lq->exact ? lq->exact : lq->inclusive;
-
+        // 递归初始化loc树
         if (ngx_http_init_locations(cf, NULL, clcf) != NGX_OK) {
             return NGX_ERROR;
         }
@@ -730,12 +730,13 @@ ngx_http_init_locations(ngx_conf_t *cf, ngx_http_core_srv_conf_t *cscf,
         }
 
         if (clcf->noname) {
-            break;
+            break; //noname 排序在最后且没有子loc了
         }
     }
 
     if (q != ngx_queue_sentinel(locations)) {
         ngx_queue_split(locations, q, &tail);
+         //为什么将队列中最后几个删除？
     }
 
     if (named) {
@@ -820,14 +821,16 @@ ngx_http_init_static_location_trees(ngx_conf_t *cf,
         clcf = lq->exact ? lq->exact : lq->inclusive;
 
         if (ngx_http_init_static_location_trees(cf, clcf) != NGX_OK) {
+            // 递归初始化loc队列树
             return NGX_ERROR;
         }
     }
-
+    // 合并了什么东西？？
     if (ngx_http_join_exact_locations(cf, locations) != NGX_OK) {
         return NGX_ERROR;
     }
-
+    // 将locations怎么处理了，放入到头部节点的list中？？
+    // 似乎是为了将队列变化成二叉树结构，做了什么调整
     ngx_http_create_locations_list(locations, ngx_queue_head(locations));
 
     pclcf->static_locations = ngx_http_create_locations_tree(cf, locations, 0);
@@ -885,7 +888,7 @@ ngx_http_add_location(ngx_conf_t *cf, ngx_queue_t **locations,
     return NGX_OK;
 }
 
-
+// location排序 filename>regex>named(@)>noname
 static ngx_int_t
 ngx_http_cmp_locations(const ngx_queue_t *one, const ngx_queue_t *two)
 {
@@ -1063,7 +1066,7 @@ ngx_http_create_locations_list(ngx_queue_t *locations, ngx_queue_t *q)
  * to keep cache locality for left leaf nodes, allocate nodes in following
  * order: node, left subtree, right subtree, inclusive subtree
  */
-
+// 将locations队列优化存储到二叉树结构中
 static ngx_http_location_tree_node_t *
 ngx_http_create_locations_tree(ngx_conf_t *cf, ngx_queue_t *locations,
     size_t prefix)

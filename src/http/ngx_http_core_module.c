@@ -880,17 +880,17 @@ ngx_http_core_generic_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     rc = ph->handler(r);
 
     if (rc == NGX_OK) {
-        r->phase_handler = ph->next;
+        r->phase_handler = ph->next; // 进入下一个阶段
         return NGX_AGAIN;
     }
 
     if (rc == NGX_DECLINED) {
-        r->phase_handler++;
+        r->phase_handler++; // 进入下一个处理函数？？
         return NGX_AGAIN;
     }
 
     if (rc == NGX_AGAIN || rc == NGX_DONE) {
-        return NGX_OK;
+        return NGX_OK;// 结束处理流程
     }
 
     /* rc == NGX_ERROR || rc == NGX_HTTP_...  */
@@ -912,7 +912,7 @@ ngx_http_core_rewrite_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     rc = ph->handler(r);
 
     if (rc == NGX_DECLINED) {
-        r->phase_handler++;
+        r->phase_handler++; // 进入下一个处理函数
         return NGX_AGAIN;
     }
 
@@ -949,7 +949,7 @@ ngx_http_core_find_config_phase(ngx_http_request_t *r,
 
     clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 
-    if (!r->internal && clcf->internal) {
+    if (!r->internal && clcf->internal) { // 处理内部loaction限制
         ngx_http_finalize_request(r, NGX_HTTP_NOT_FOUND);
         return NGX_OK;
     }
@@ -959,12 +959,12 @@ ngx_http_core_find_config_phase(ngx_http_request_t *r,
                    (clcf->noname ? "*" : (clcf->exact_match ? "=" : "")),
                    &clcf->name);
 
-    ngx_http_update_location_config(r);
+    ngx_http_update_location_config(r);// 查找到location后将更新r中的一些信息
 
     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                    "http cl:%O max:%O",
                    r->headers_in.content_length_n, clcf->client_max_body_size);
-
+    // 在这里做了一个访问控制，不太合适
     if (r->headers_in.content_length_n != -1
         && !r->discard_body
         && clcf->client_max_body_size
@@ -979,7 +979,8 @@ ngx_http_core_find_config_phase(ngx_http_request_t *r,
         ngx_http_finalize_request(r, NGX_HTTP_REQUEST_ENTITY_TOO_LARGE);
         return NGX_OK;
     }
-
+    // 配置location /user/，当uri为/user时，返回一个301重定向
+    // 在这里处理301感觉也不是很好
     if (rc == NGX_DONE) {
         ngx_http_clear_location(r);
 
@@ -1216,7 +1217,7 @@ ngx_http_update_location_config(ngx_http_request_t *r)
 
     clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
 
-    if (r->method & clcf->limit_except) {
+    if (r->method & clcf->limit_except) { // 这个分支看不懂？
         r->loc_conf = clcf->limit_except_loc_conf;
         clcf = ngx_http_get_module_loc_conf(r, ngx_http_core_module);
     }
@@ -1286,7 +1287,7 @@ ngx_http_update_location_config(ngx_http_request_t *r)
     }
 
     if (clcf->handler) {
-        r->content_handler = clcf->handler;
+        r->content_handler = clcf->handler; //关键 设置content_handler
     }
 }
 
@@ -1325,18 +1326,19 @@ ngx_http_core_find_location(ngx_http_request_t *r)
 #endif
 
         /* look up nested locations */
-
+        // 查找嵌套的loc
         rc = ngx_http_core_find_location(r);
     }
 
     if (rc == NGX_OK || rc == NGX_DONE) {
-        return rc;
+        return rc;// 找到=修饰的或^~修饰的，或者已经确定需要返回301
     }
 
     /* rc == NGX_DECLINED or rc == NGX_AGAIN in nested location */
 
 #if (NGX_PCRE)
 
+    // 先找出一个前缀，在遍历一遍正则，感觉不是最好的设计
     if (noregex == 0 && pclcf->regex_locations) {
 
         for (clcfp = pclcf->regex_locations; *clcfp; clcfp++) {
@@ -1350,7 +1352,7 @@ ngx_http_core_find_location(ngx_http_request_t *r)
                 r->loc_conf = (*clcfp)->loc_conf;
 
                 /* look up nested locations */
-
+                // 查找嵌套的loc 正则loc中嵌套loc
                 rc = ngx_http_core_find_location(r);
 
                 return (rc == NGX_ERROR) ? rc : NGX_OK;
@@ -1389,7 +1391,7 @@ ngx_http_core_find_static_location(ngx_http_request_t *r,
 
     rv = NGX_DECLINED;
 
-    for ( ;; ) {
+    for ( ;; ) { //在树结构中查找合适node
 
         if (node == NULL) {
             return rv;
@@ -1401,7 +1403,7 @@ ngx_http_core_find_static_location(ngx_http_request_t *r,
 
         n = (len <= (size_t) node->len) ? len : node->len;
 
-        rc = ngx_filename_cmp(uri, node->name, n);
+        rc = ngx_filename_cmp(uri, node->name, n); //每次只比对uri中的前缀部分
 
         if (rc != 0) {
             node = (rc < 0) ? node->left : node->right;
@@ -2842,6 +2844,7 @@ ngx_http_core_location(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy)
     ngx_http_conf_ctx_t       *ctx, *pctx;
     ngx_http_core_loc_conf_t  *clcf, *pclcf;
 
+    // 创建loaction级别上下文
     ctx = ngx_pcalloc(cf->pool, sizeof(ngx_http_conf_ctx_t));
     if (ctx == NULL) {
         return NGX_CONF_ERROR;
@@ -2960,14 +2963,14 @@ ngx_http_core_location(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy)
     pclcf = pctx->loc_conf[ngx_http_core_module.ctx_index];
 
     if (cf->cmd_type == NGX_HTTP_LOC_CONF) {
-
+        // location嵌套处理
         /* nested location */
 
 #if 0
         clcf->prev_location = pclcf;
 #endif
 
-        if (pclcf->exact_match) {
+        if (pclcf->exact_match) { // locaiton =xxx内部不允许嵌套
             ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                                "location \"%V\" cannot be inside "
                                "the exact location \"%V\"",
@@ -2975,7 +2978,7 @@ ngx_http_core_location(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy)
             return NGX_CONF_ERROR;
         }
 
-        if (pclcf->named) {
+        if (pclcf->named) { // locaiton @xxx内部不允许嵌套
             ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                                "location \"%V\" cannot be inside "
                                "the named location \"%V\"",
@@ -2983,7 +2986,7 @@ ngx_http_core_location(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy)
             return NGX_CONF_ERROR;
         }
 
-        if (clcf->named) {
+        if (clcf->named) { // locaiton @xxx不允许在嵌套在其他location中
             ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                                "named location \"%V\" can be "
                                "on the server level only",
@@ -2999,7 +3002,7 @@ ngx_http_core_location(ngx_conf_t *cf, ngx_command_t *cmd, void *dummy)
 #else
         if (ngx_filename_cmp(clcf->name.data, pclcf->name.data, len) != 0)
 #endif
-        {
+        { // 父location的name必须比子location大
             ngx_conf_log_error(NGX_LOG_EMERG, cf, 0,
                                "location \"%V\" is outside location \"%V\"",
                                &clcf->name, &pclcf->name);

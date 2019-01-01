@@ -13,7 +13,7 @@
  * find the middle queue element if the queue has odd number of elements
  * or the first element of the queue's second part otherwise
  */
-
+// 看不懂，似乎返回了倒数第一或第二个元素？
 ngx_queue_t *
 ngx_queue_middle(ngx_queue_t *queue)
 {
