@@ -841,7 +841,7 @@ ngx_http_handler(ngx_http_request_t *r)
     ngx_http_core_run_phases(r);
 }
 
-
+// 这个函数会被异步调用多次
 void
 ngx_http_core_run_phases(ngx_http_request_t *r)
 {
@@ -852,7 +852,7 @@ ngx_http_core_run_phases(ngx_http_request_t *r)
     cmcf = ngx_http_get_module_main_conf(r, ngx_http_core_module);
 
     ph = cmcf->phase_engine.handlers;
-
+    // r->phase_handler 保存上次r的处理阶段
     while (ph[r->phase_handler].checker) {
 
         rc = ph[r->phase_handler].checker(r, &ph[r->phase_handler]);
@@ -885,12 +885,12 @@ ngx_http_core_generic_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     }
 
     if (rc == NGX_DECLINED) {
-        r->phase_handler++; // 进入下一个处理函数？？
+        r->phase_handler++; // 进入下一个处理函数
         return NGX_AGAIN;
     }
 
     if (rc == NGX_AGAIN || rc == NGX_DONE) {
-        return NGX_OK;// 结束处理流程
+        return NGX_OK;// 返回事件轮询
     }
 
     /* rc == NGX_ERROR || rc == NGX_HTTP_...  */
@@ -917,7 +917,7 @@ ngx_http_core_rewrite_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     }
 
     if (rc == NGX_DONE) {
-        return NGX_OK;
+        return NGX_OK; // 返回事件轮询
     }
 
     /* NGX_OK, NGX_AGAIN, NGX_ERROR, NGX_HTTP_...  */
@@ -1033,7 +1033,7 @@ ngx_http_core_post_rewrite_phase(ngx_http_request_t *r,
                    "post rewrite phase: %ui", r->phase_handler);
 
     if (!r->uri_changed) {
-        r->phase_handler++;
+        r->phase_handler++; // 进去下一个处理函数
         return NGX_AGAIN;
     }
 
@@ -1058,7 +1058,7 @@ ngx_http_core_post_rewrite_phase(ngx_http_request_t *r,
         return NGX_OK;
     }
 
-    r->phase_handler = ph->next;
+    r->phase_handler = ph->next; // 进入下一阶段
 
     cscf = ngx_http_get_module_srv_conf(r, ngx_http_core_module);
     r->loc_conf = cscf->ctx->loc_conf;
@@ -1074,7 +1074,7 @@ ngx_http_core_access_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     ngx_http_core_loc_conf_t  *clcf;
 
     if (r != r->main) {
-        r->phase_handler = ph->next;
+        r->phase_handler = ph->next; // 进入下一阶段
         return NGX_AGAIN;
     }
 
@@ -1084,7 +1084,7 @@ ngx_http_core_access_phase(ngx_http_request_t *r, ngx_http_phase_handler_t *ph)
     rc = ph->handler(r);
 
     if (rc == NGX_DECLINED) {
-        r->phase_handler++;
+        r->phase_handler++; // 进入下一处理函数
         return NGX_AGAIN;
     }
 

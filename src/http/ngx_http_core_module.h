@@ -132,10 +132,10 @@ typedef ngx_int_t (*ngx_http_phase_handler_pt)(ngx_http_request_t *r,
     ngx_http_phase_handler_t *ph);
 
 struct ngx_http_phase_handler_s {
-    ngx_http_phase_handler_pt  checker;
-    ngx_http_handler_pt        handler;
-    ngx_uint_t                 next;
-};
+    ngx_http_phase_handler_pt  checker; // 当前阶段的处理函数
+    ngx_http_handler_pt        handler; // 业务处理函数
+    ngx_uint_t                 next;    // 下一个阶段的索引
+}; // 一个阶段内会有多个handler，相同阶段的checker与next相同
 
 
 typedef struct {
