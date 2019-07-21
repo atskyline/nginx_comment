@@ -778,7 +778,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
             continue;
         }
 #endif
-
+        // 为监听端口分配链接
         c = ngx_get_connection(ls[i].fd, cycle->log);
 
         if (c == NULL) {
@@ -857,7 +857,7 @@ ngx_event_process_init(ngx_cycle_t *cycle)
         }
 
 #else
-
+        /* 设置链接的读事件处理为ngx_event_accept */
         rev->handler = (c->type == SOCK_STREAM) ? ngx_event_accept
                                                 : ngx_event_recvmsg;
 

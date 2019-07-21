@@ -587,7 +587,9 @@ ngx_epoll_add_event(ngx_event_t *ev, ngx_int_t event, ngx_uint_t flags)
     c = ev->data;
 
     events = (uint32_t) event;
-
+    // EPOLLIN 有数据可以读出
+    // EPOLLOUT 可以写入数据
+    // EPOLLRDHUP 远端关闭TCP连接
     if (event == NGX_READ_EVENT) {
         e = c->write;
         prev = EPOLLOUT;
